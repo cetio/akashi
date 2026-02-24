@@ -96,13 +96,13 @@ void parseTableRow(ref WikitextParser p)
             break;
 
         bool isHeader = (p.peek() == '!');
-        if (p.peek() == '|' || p.peek() == '!')
+        if (p.peek() != '|' && p.peek() != '!')
+            break;
+        else
         {
             p.pos++;
             parseTableCells(p, isHeader);
         }
-        else
-            break;
     }
 
     p.nodes[rowIdx].childStart = firstChild;
@@ -124,6 +124,7 @@ void parseTableCells(ref WikitextParser p, bool isHeader)
                 || p.src[p.pos..p.pos + 2] == "|-"
                 || p.src[p.pos..p.pos + 2] == "|+"))
             break;
+            
         if (p.peek() == '|' || p.peek() == '!')
             break;
 
@@ -183,24 +184,42 @@ ptrdiff_t findAttributePipe(string text)
         }
         if (j + 1 < text.length && text[j] == ']' && text[j + 1] == ']')
         {
-            if (bracketDepth > 0) bracketDepth--;
+            if (bracketDepth > 0)
+                bracketDepth--;
+
             j++;
             continue;
         }
+
         if (j + 1 < text.length && text[j] == '{' && text[j + 1] == '{')
         {
             braceDepth++;
             j++;
             continue;
         }
+
         if (j + 1 < text.length && text[j] == '}' && text[j + 1] == '}')
         {
-            if (braceDepth > 0) braceDepth--;
+            if (braceDepth > 0)
+                braceDepth--;
+
             j++;
             continue;
         }
-        if (text[j] == '<') { angleDepth++; continue; }
-        if (text[j] == '>') { if (angleDepth > 0) angleDepth--; continue; }
+
+        if (text[j] == '<')
+        {
+            angleDepth++;
+            continue;
+        }
+
+        if (text[j] == '>')
+        {
+            if (angleDepth > 0)
+                angleDepth--;
+
+            continue;
+        }
 
         if (text[j] == '|' && bracketDepth == 0
             && braceDepth == 0 && angleDepth == 0)

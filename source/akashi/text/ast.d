@@ -76,24 +76,22 @@ struct Node
     Node[] children(return ref Node[] allNodes) return
     {
         if (childStart >= childEnd)
-            return [];
+            return null;
+
         return allNodes[childStart..childEnd];
     }
 
-    bool hasChildren() const pure nothrow @nogc
-    {
-        return childEnd > childStart;
-    }
+    /// Returns true if this node has any children.
+    bool hasChildren() const pure nothrow @nogc 
+        => childEnd > childStart;
 
-    uint childCount() const pure nothrow @nogc
-    {
-        return childEnd - childStart;
-    }
+    /// Returns the number of direct and indirect children covered by this node.
+    uint childCount() const pure nothrow @nogc 
+        => childEnd - childStart;
 
-    bool hasFlag(NodeFlags f) const pure nothrow @nogc
-    {
-        return (flags & f) != NodeFlags.None;
-    }
+    /// Returns true if the node has the specified flag.
+    bool hasFlag(NodeFlags f) const pure nothrow @nogc 
+        => (flags & f) != NodeFlags.None;
 }
 
 struct Document
@@ -106,16 +104,12 @@ struct Document
     string source;
 
     /// Root document node.
-    ref inout(Node) root() inout return
-    {
-        return nodes[0];
-    }
+    ref inout(Node) root() inout return 
+        => nodes[0];
 
     /// Advance past a node's subtree to find the next sibling index.
-    uint nextSiblingIdx(uint i) const pure nothrow @nogc
-    {
-        return nodes[i].hasChildren ? nodes[i].childEnd : i + 1;
-    }
+    uint nextSiblingIdx(uint i) const pure nothrow @nogc 
+        => nodes[i].hasChildren ? nodes[i].childEnd : i + 1;
 
     /// Recursively extract visible plain text from a node subtree.
     string extractText(ref const Node node)
@@ -130,7 +124,8 @@ struct Document
             case Redirect:
             case Math:
             case HtmlTag:
-                return "";
+                return null;
+                
             default:
                 break;
         }
@@ -142,9 +137,11 @@ struct Document
         {
             if (node.text.length > 0)
                 return node.text;
+
             if (node.target.length > 0)
                 return node.target;
-            return "";
+
+            return null;
         }
 
         if (node.type == NodeType.LineBreak)
@@ -156,8 +153,9 @@ struct Document
         if (!node.hasChildren)
         {
             if (node.type == NodeType.Preformatted || node.type == NodeType.Section)
-                return node.text.length > 0 ? node.text : "";
-            return "";
+                return node.text.length > 0 ? node.text : null;
+
+            return null;
         }
 
         string ret;
@@ -174,7 +172,8 @@ struct Document
     Node[] sections()
     {
         if (nodes.length == 0)
-            return [];
+            return null;
+
         Node[] ret;
         uint i = nodes[0].childStart;
         while (i < nodes[0].childEnd)
@@ -190,7 +189,8 @@ struct Document
     Node[] preamble()
     {
         if (nodes.length == 0)
-            return [];
+            return null;
+
         Node[] ret;
         uint i = nodes[0].childStart;
         while (i < nodes[0].childEnd)
@@ -264,9 +264,9 @@ struct Document
 
     static uint dropFlag(NodeType[] types...)
     {
-        uint flags = 0;
+        uint ret = 0;
         foreach (t; types)
-            flags |= (1u << t);
-        return flags;
+            ret |= (1u << t);
+        return ret;
     }
 }

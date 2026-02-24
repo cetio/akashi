@@ -363,7 +363,7 @@ private struct XmlParser
 
         string tagAttrs = src[pos..tagEnd];
         string href = extractAttr(tagAttrs, "xlink:href");
-        if (href.length == 0)
+        if (href == null)
             href = extractAttr(tagAttrs, "href");
         pos = tagEnd + 1;
 
@@ -401,7 +401,7 @@ private struct XmlParser
         if (pos > start)
         {
             string text = decodeEntities(src[start..pos]);
-            if (text.length > 0)
+            if (text != null)
             {
                 Node textNode = Node(NodeType.Text);
                 textNode.text = text;

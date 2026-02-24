@@ -38,24 +38,24 @@ package struct WikitextParser
         restructure();
     }
     
-    char peek() const pure nothrow @nogc
+    char peek() const pure nothrow @nogc 
         => src[pos];
 
-    size_t remaining() const pure nothrow @nogc
+    size_t remaining() const pure nothrow @nogc 
         => src.length - pos;
 
-    bool matchAt(string str) const pure nothrow @nogc
+    bool matchAt(string str) const pure nothrow @nogc 
         => pos + str.length <= src.length && src[pos..pos + str.length] == str;
 
-    bool atLineStart() const pure nothrow @nogc
+    bool atLineStart() const pure nothrow @nogc 
         => pos == 0 || src[pos - 1] == '\n';
 
     size_t findLineEnd(size_t from) const pure nothrow @nogc
     {
-        size_t cur = from;
-        while (cur < src.length && src[cur] != '\n')
-            cur++;
-        return cur;
+        size_t ret = from;
+        while (ret < src.length && src[ret] != '\n')
+            ret++;
+        return ret;
     }
 
     // --- Top-level block dispatch ---
@@ -273,6 +273,7 @@ package struct WikitextParser
                 pos = src.length;
                 return;
             }
+
             size_t absEnd = pos + 4 + end;
             nodes ~= Node(NodeType.Comment, src[pos + 4..absEnd]);
             pos = absEnd + 3;

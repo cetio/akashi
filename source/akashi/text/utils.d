@@ -28,39 +28,45 @@ ptrdiff_t findMatchingClose(string text, size_t start, string open, string close
     return -1;
 }
 
-/// Remove all XML/HTML tags from text, leaving only text content.
-string stripTags(string text)
-{
-    if (text.length == 0)
-        return text;
-
-    string ret;
-    size_t i = 0;
-    size_t start = 0;
-    while (i < text.length)
+    /// Remove all XML/HTML tags from text, leaving only text content.
+    string stripTags(string text)
     {
-        if (text[i] == '<')
+        if (text == null)
+            return null;
+
+        string ret;
+        size_t i = 0;
+        size_t start = 0;
+        while (i < text.length)
         {
-            if (i > start)
-                ret ~= text[start..i];
-            while (i < text.length && text[i] != '>')
+            if (text[i] == '<')
+            {
+                if (i > start)
+                    ret ~= text[start..i];
+
+                while (i < text.length && text[i] != '>')
+                    i++;
+
+                if (i < text.length)
+                    i++;
+
+                start = i;
+            }
+            else
                 i++;
-            if (i < text.length) i++;
-            start = i;
         }
-        else
-            i++;
+
+        if (start < text.length)
+            ret ~= text[start..$];
+
+        return ret;
     }
-    if (start < text.length)
-        ret ~= text[start..$];
-    return ret;
-}
 
 /// Decode common XML/HTML entities in text.
 string decodeEntities(string text)
 {
-    if (text.length == 0)
-        return text;
+    if (text == null)
+        return null;
 
     // Quick check: if no '&', return as-is.
     if (text.indexOf('&') < 0)
@@ -83,15 +89,25 @@ string decodeEntities(string text)
             if (semicol < text.length && text[semicol] == ';')
             {
                 string entity = text[i + 1..semicol];
-                if (entity == "amp") ret ~= "&";
-                else if (entity == "lt") ret ~= "<";
-                else if (entity == "gt") ret ~= ">";
-                else if (entity == "quot") ret ~= "\"";
-                else if (entity == "apos") ret ~= "'";
-                else if (entity == "nbsp") ret ~= " ";
-                else if (entity == "ndash") ret ~= "\u2013";
-                else if (entity == "mdash") ret ~= "\u2014";
-                else if (entity == "minus") ret ~= "\u2212";
+
+                if (entity == "amp")
+                    ret ~= "&";
+                else if (entity == "lt")
+                    ret ~= "<";
+                else if (entity == "gt")
+                    ret ~= ">";
+                else if (entity == "quot")
+                    ret ~= "\"";
+                else if (entity == "apos")
+                    ret ~= "'";
+                else if (entity == "nbsp")
+                    ret ~= " ";
+                else if (entity == "ndash")
+                    ret ~= "\u2013";
+                else if (entity == "mdash")
+                    ret ~= "\u2014";
+                else if (entity == "minus")
+                    ret ~= "\u2212";
                 else
                     ret ~= text[i..semicol + 1];
 
@@ -108,7 +124,9 @@ string decodeEntities(string text)
         else
             i++;
     }
+
     if (start < text.length)
         ret ~= text[start..$];
+
     return ret;
 }

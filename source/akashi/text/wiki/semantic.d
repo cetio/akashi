@@ -116,7 +116,7 @@ void parsePreformatted(ref WikitextParser p)
     {
         p.pos++;
         size_t lineEnd = p.findLineEnd(p.pos);
-        if (content.length > 0)
+        if (content != null)
             content = content~"\n"~p.src[p.pos..lineEnd];
         else
             content = p.src[p.pos..lineEnd];
@@ -125,7 +125,7 @@ void parsePreformatted(ref WikitextParser p)
             p.pos++;
     }
 
-    if (content.length > 0)
+    if (content != null)
     {
         uint paragraphIdx = cast(uint) p.nodes.length;
         p.nodes ~= Node(NodeType.Paragraph);
@@ -332,7 +332,7 @@ void parseParagraph(ref WikitextParser p)
     if (p.pos > start)
     {
         string content = p.src[start..p.pos].strip;
-        if (content.length > 0)
+        if (content != null)
         {
             uint paragraphIdx = cast(uint) p.nodes.length;
             p.nodes ~= Node(NodeType.Paragraph);
@@ -346,49 +346,49 @@ void parseParagraph(ref WikitextParser p)
     p.skipNewlines();
 }
 
-/// Parse inline wikitext content into AST nodes:
-/// bold/italic, links, external links, templates, references,
-/// HTML tags, line breaks, comments.
-void parseInlineInto(ref WikitextParser p, string text)
-{
-    if (text.length == 0)
-        return;
-
-    size_t i = 0;
-    size_t textStart = 0;
-
-    void flushText()
+    /// Parse inline wikitext content into AST nodes:
+    /// bold/italic, links, external links, templates, references,
+    /// HTML tags, line breaks, comments.
+    void parseInlineInto(ref WikitextParser p, string text)
     {
-        if (i > textStart)
-        {
-            Node textNode = Node(NodeType.Text);
-            textNode.text = text[textStart..i];
-            p.nodes ~= textNode;
-        }
-    }
+        if (text == null)
+            return;
 
-    while (i < text.length)
-    {
-        // HTML comment
-        if (i + 4 < text.length && text[i..i + 4] == "<!--")
+        size_t i = 0;
+        size_t textStart = 0;
+
+        void flushText()
         {
-            flushText();
-            ptrdiff_t end = text[i + 4..$].indexOf("-->");
-            if (end < 0)
+            if (i > textStart)
             {
-                p.nodes ~= Node(NodeType.Comment, text[i + 4..$]);
-                textStart = text.length;
-                i = text.length;
+                Node textNode = Node(NodeType.Text);
+                textNode.text = text[textStart..i];
+                p.nodes ~= textNode;
             }
-            else
-            {
-                size_t absEnd = i + 4 + end;
-                p.nodes ~= Node(NodeType.Comment, text[i + 4..absEnd]);
-                i = absEnd + 3;
-                textStart = i;
-            }
-            continue;
         }
+
+        while (i < text.length)
+        {
+            // HTML comment
+            if (i + 4 < text.length && text[i..i + 4] == "<!--")
+            {
+                flushText();
+                ptrdiff_t end = text[i + 4..$].indexOf("-->");
+                if (end < 0)
+                {
+                    p.nodes ~= Node(NodeType.Comment, text[i + 4..$]);
+                    textStart = text.length;
+                    i = text.length;
+                }
+                else
+                {
+                    size_t absEnd = i + 4 + end;
+                    p.nodes ~= Node(NodeType.Comment, text[i + 4..absEnd]);
+                    i = absEnd + 3;
+                    textStart = i;
+                }
+                continue;
+            }
 
         // Template {{ ... }}
         if (i + 1 < text.length && text[i] == '{' && text[i + 1] == '{')
@@ -428,7 +428,8 @@ void parseInlineInto(ref WikitextParser p, string text)
             textStart = i;
 
             // Category [[Category:...]]
-            if (inner.length > 9
+            if (inner != null
+                && inner.length > 9
                 && (inner[0..9] == "Category:" || inner[0..9] == "category:"))
             {
                 Node categoryNode = Node(NodeType.Category);
@@ -441,10 +442,11 @@ void parseInlineInto(ref WikitextParser p, string text)
             }
 
             // File/Image [[File:...]] [[Image:...]]
-            if ((inner.length > 5
-                    && (inner[0..5] == "File:" || inner[0..5] == "file:"))
-                || (inner.length > 6
-                    && (inner[0..6] == "Image:" || inner[0..6] == "image:")))
+            if (inner != null
+                && ((inner.length > 5
+                        && (inner[0..5] == "File:" || inner[0..5] == "file:"))
+                    || (inner.length > 6
+                        && (inner[0..6] == "Image:" || inner[0..6] == "image:"))))
             {
                 Node imageNode = Node(NodeType.Image);
                 ptrdiff_t colon = inner.indexOf(':');
