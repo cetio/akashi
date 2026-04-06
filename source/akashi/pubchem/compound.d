@@ -40,8 +40,12 @@ package:
     }
 
     Conformer3D _conformer3D;
+    Assay[] _assays;
+    AssayResult[] _assayResults;
     string[] _synonyms;
     string _description;
+    bool _assaysLoaded;
+    bool _assayResultsLoaded;
 
 public:
     int cid;
@@ -88,6 +92,36 @@ public:
     static Compound byID(string TYPE)(int id)
     {
         return getProperties!TYPE(id)[0];
+    }
+
+    AssayResult[] assayResults()
+    {
+        if (!_assayResultsLoaded)
+        {
+            _assayResults = getAssaySummary!"cid"(cid);
+            _assayResultsLoaded = true;
+        }
+
+        return _assayResults;
+    }
+
+    Assay[] assays()
+    {
+        if (!_assaysLoaded)
+        {
+            bool[int] seen;
+            foreach (result; assayResults())
+            {
+                if (result.assay is null || result.assay.aid in seen)
+                    continue;
+
+                seen[result.assay.aid] = true;
+                _assays ~= result.assay;
+            }
+            _assaysLoaded = true;
+        }
+
+        return _assays;
     }
 
     string[] synonyms()
