@@ -1,7 +1,6 @@
-module akashi.pubchem.protein;
+module akashi.pubchem.bio.protein;
 
-import akashi.pubchem : getProtein, getProteinDetails, getAssaysByProtein;
-import akashi.pubchem.assay;
+import akashi.pubchem.bio : getProtein, getProteinDetails;
 
 class Protein
 {
@@ -18,7 +17,7 @@ class Protein
         return protein;
     }
 
-package:
+package(akashi.pubchem):
     this(string accession)
     {
         assert(accession.length > 0, "Protein accession must not be empty");
@@ -33,8 +32,6 @@ package:
     string[] _refSeqAccessions;
     bool _summaryLoaded;
     bool _detailsLoaded;
-    Assay[] _assays;
-    bool _assaysLoaded;
 
 public:
     string accession;
@@ -80,17 +77,6 @@ public:
     {
         ensureDetails();
         return _refSeqAccessions;
-    }
-
-    Assay[] assays()
-    {
-        if (!_assaysLoaded)
-        {
-            _assays = getAssaysByProtein(accession);
-            _assaysLoaded = true;
-        }
-
-        return _assays;
     }
 
 private:

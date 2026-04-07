@@ -1,9 +1,8 @@
 module akashi.pubchem;
 
-public import akashi.pubchem.assay;
+public import akashi.pubchem.bio;
 public import akashi.pubchem.compound;
 public import akashi.pubchem.conformer3d;
-public import akashi.pubchem.protein;
 import akashi.pubchem.internal;
 
 import std.algorithm : map;
@@ -64,37 +63,6 @@ string[] getDescription(string TYPE)(int[] ids...)
 string[] getDescription(string name)
 {
     return internalGetDescription!"name"(name);
-}
-
-Assay getAssay(int aid)
-{
-    return internalGetAssay(aid.to!string)[0];
-}
-
-AssayResult[] getAssaySummary(string TYPE)(int id)
-    if (TYPE == "cid" || TYPE == "sid")
-{
-    return internalGetAssaySummary!TYPE(id.to!string);
-}
-
-Protein getProtein(string accession)
-{
-    return internalGetProtein(accession)[0];
-}
-
-Protein getProteinDetails(string accession)
-{
-    return internalGetProteinDetails(accession);
-}
-
-Assay[] getAssaysByProtein(string accession)
-{
-    return internalGetAssaysByProtein(accession);
-}
-
-Compound[] getCompoundsByAssay(int aid, string cidsType = "all")
-{
-    return internalGetCompoundsByAssay(aid.to!string, cidsType);
 }
 
 Compound[] similaritySearch(int cid, int threshold = 90, int maxRecords = 10)
