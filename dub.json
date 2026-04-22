@@ -3,7 +3,7 @@
 		"cet"
 	],
 	"copyright": "Copyright 2025, cet",
-	"description": ".",
+	"description": "API integration for PubChem, PMC, PubMed, Wikipedia, and more.",
 	"license": "AGPL-3.0-only",
 	"name": "akashi"
 }
