@@ -162,8 +162,6 @@ writeln(page.fulltext);
   - Query NCBI Entrez, retrieve PubMed abstracts, retrieve PMC full text, and work with article metadata such as DOI values.
 - `akashi.text`
   - Parse wikitext and XML into a compact AST for further analysis, rendering, or plain-text extraction.
-- `akashi.composer`
-  - Reuse Akashi's HTTP and rate-limiting orchestration primitives when building additional source adapters.
 
 ## License
 

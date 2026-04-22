@@ -8,7 +8,7 @@ import std.array : join;
 import std.algorithm : canFind;
 import std.functional : toDelegate;
 
-import akashi.composer;
+import conductor;
 import akashi.page;
 import akashi.pubchem.compound : Compound;
 

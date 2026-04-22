@@ -9,7 +9,7 @@ import std.algorithm : canFind, min, map, filter;
 import std.math : abs, isNaN;
 import std.functional : toDelegate;
 
-import akashi.composer;
+import conductor;
 import akashi.page;
 import akashi.pubchem;
 

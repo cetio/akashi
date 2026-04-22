@@ -1,6 +1,6 @@
 module akashi.entrez.eutils;
 
-import akashi.composer;
+import conductor;
 import std.json : JSONValue, parseJSON;
 import std.uri : encode;
 import std.conv : to;

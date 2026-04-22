@@ -5,7 +5,7 @@ import std.conv : to;
 import std.uri : encode;
 import std.string : assumeUTF, join, replace;
 
-import akashi.composer;
+import conductor;
 import akashi.pubchem.bio.gene;
 import akashi.pubchem.bio.protein;
 import akashi.pubchem.conformer3d;
