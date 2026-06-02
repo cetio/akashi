@@ -1,5 +1,7 @@
 # Akashi
 
+[![License](https://img.shields.io/badge/License-AGPL--3-blue)](LICENSE.txt)
+
 Akashi is a D library for chemistry-aware retrieval, source resolution, and text parsing across public scientific and knowledge sources.
 It was designed to work with Intuit, a D AI library for easy, deterministic connectors to AI models, but it is fully functional on its own.
 
