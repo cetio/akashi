@@ -4,7 +4,7 @@
 	],
 	"copyright": "Copyright 2025, cet",
 	"dependencies": {
-		"conductor": "~>1.0.0"
+		"conductor": "~>2.1.0"
 	},
 	"description": "API integration for PubChem, PMC, PubMed, Wikipedia, and more.",
 	"license": "AGPL-3.0-only",
