@@ -6,7 +6,7 @@
 	"dependencies": {
 		"conductor": "~>2.1.0"
 	},
-	"description": "API integration for PubChem, PMC, PubMed, Wikipedia, and more.",
+	"description": "Wikitext, XML, articles, medical texts, chemistry, and much more with sophisticated rate limiting and batching.",
 	"license": "AGPL-3.0-only",
 	"name": "akashi"
 }
