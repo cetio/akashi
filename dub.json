@@ -7,6 +7,8 @@
 		"conductor": "~>2.1.0"
 	},
 	"description": "Wikitext, XML, articles, medical texts, chemistry, and much more with sophisticated rate limiting and batching.",
-	"license": "AGPL-3.0-only",
-	"name": "akashi"
+	"license": "Apache-2.0",
+	"name": "akashi",
+	"targetType": "library",
+	"targetPath": "bin"
 }
