@@ -1,6 +1,7 @@
 module akashi.entrez.eutils;
 
-import conductor;
+import akashi.request : RequestClient;
+
 import std.json : JSONValue, parseJSON;
 import std.uri : encode;
 import std.conv : to;
@@ -15,8 +16,8 @@ struct TimeFrame
 
 private:
 
-static Orchestrator orchestrator =
-    Orchestrator("https://eutils.ncbi.nlm.nih.gov/entrez/eutils", 333);
+static RequestClient client =
+    RequestClient("https://eutils.ncbi.nlm.nih.gov/entrez/eutils", 333);
 
 public:
 
@@ -26,24 +27,21 @@ JSONValue esearch(string DB)(
     int retstart = 0,
     string apiKey = null)
 {
-    JSONValue json;
-    orchestrator.rateLimit();
-
     string[string] params = [
-        "db": DB, "term": term,
-        "retmax": retmax.to!string, "retstart": retstart.to!string,
+        "db": DB,
+        "term": term,
+        "retmax": retmax.to!string,
+        "retstart": retstart.to!string,
         "retmode": "json"
     ];
 
     if (apiKey !is null && apiKey.length > 0)
         params["api_key"] = apiKey;
 
-    orchestrator.client.get(
-        orchestrator.buildURL("/esearch.fcgi", params),
-        (ubyte[] data) { json = parseJSON(data.assumeUTF); },
-        null
-    );
-    return json;
+    ubyte[] data = client.get("/esearch.fcgi", params);
+    if (data is null)
+        return JSONValue.init;
+    return parseJSON(data.assumeUTF);
 }
 
 string efetch(string DB)(string id, string rettype = "abstract", string apiKey = null)
@@ -56,9 +54,7 @@ string efetch(string DB)(string[] ids, string rettype = "abstract", string apiKe
     if (ids.length == 0)
         return null;
 
-    string result;
-    orchestrator.rateLimit();
-
+    ubyte[] data;
     string idParam = ids.join(",");
     if (ids.length > 200 || idParam.length > 2000)
     {
@@ -68,47 +64,42 @@ string efetch(string DB)(string[] ids, string rettype = "abstract", string apiKe
         if (apiKey !is null && apiKey.length > 0)
             postData ~= "&api_key="~encode(apiKey);
 
-        orchestrator.client.post(
-            orchestrator.buildURL("/efetch.fcgi"),
-            postData,
-            (ubyte[] data) { result = cast(string) data.assumeUTF; },
-            null
-        );
+        data = client.post("/efetch.fcgi", postData);
     }
     else
     {
         string[string] params = [
-            "db": DB, "retmode": "xml", "rettype": rettype, "id": idParam
+            "db": DB,
+            "retmode": "xml",
+            "rettype": rettype,
+            "id": idParam
         ];
         if (apiKey !is null && apiKey.length > 0)
             params["api_key"] = apiKey;
 
-        orchestrator.client.get(
-            orchestrator.buildURL("/efetch.fcgi", params),
-            (ubyte[] data) { result = cast(string) data.assumeUTF; },
-            null
-        );
+        data = client.get("/efetch.fcgi", params);
     }
-    return result;
+
+    if (data is null)
+        return null;
+    return cast(string)data.assumeUTF;
 }
 
 JSONValue elink(string DBFROM, string DBTO)(
     string id,
     string apiKey = null)
 {
-    JSONValue json;
-    orchestrator.rateLimit();
-
     string[string] params = [
-        "dbfrom": DBFROM, "db": DBTO, "id": id, "retmode": "json"
+        "dbfrom": DBFROM,
+        "db": DBTO,
+        "id": id,
+        "retmode": "json"
     ];
     if (apiKey !is null && apiKey.length > 0)
         params["api_key"] = apiKey;
 
-    orchestrator.client.get(
-        orchestrator.buildURL("/elink.fcgi", params),
-        (ubyte[] data) { json = parseJSON(data.assumeUTF); },
-        null
-    );
-    return json;
+    ubyte[] data = client.get("/elink.fcgi", params);
+    if (data is null)
+        return JSONValue.init;
+    return parseJSON(data.assumeUTF);
 }
