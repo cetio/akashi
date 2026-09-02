@@ -1,5 +1,9 @@
 module akashi.wikipedia;
 
+import akashi.page;
+import akashi.pubchem.compound : Compound;
+import akashi.request : RequestClient;
+
 import std.json : JSONValue, parseJSON, JSONType;
 import std.conv : to;
 import std.string : assumeUTF, strip;
@@ -8,30 +12,20 @@ import std.array : join;
 import std.algorithm : canFind;
 import std.functional : toDelegate;
 
-import conductor;
-import akashi.page;
-import akashi.pubchem.compound : Compound;
-
 private:
 
-static Orchestrator orchestrator =
-    Orchestrator("https://en.wikipedia.org/w", 200);
+static RequestClient client =
+    RequestClient("https://en.wikipedia.org/w", 200);
 
 JSONValue query(string[string] params)
 {
-    JSONValue json;
     params["format"] = "json";
     params["formatversion"] = "2";
 
-    orchestrator.rateLimit();
-    orchestrator.client.get(
-        orchestrator.buildURL("/api.php", params),
-        (ubyte[] data) {
-            json = parseJSON(data.assumeUTF);
-        },
-        null
-    );
-    return json;
+    ubyte[] data = client.get("/api.php", params);
+    if (data is null)
+        return JSONValue.init;
+    return parseJSON(data.assumeUTF);
 }
 
 package:
