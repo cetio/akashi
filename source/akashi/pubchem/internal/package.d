@@ -6,7 +6,6 @@ import akashi.pubchem.conformer3d;
 import akashi.pubchem.compound;
 import akashi.pubchem.internal.parse;
 import akashi.request : RequestClient;
-import conductor;
 
 import std.json : JSONValue, parseJSON;
 import std.conv : to;
@@ -29,7 +28,7 @@ JSONValue fetchJSON(ref RequestClient client, string path, string[string] query 
 package(akashi.pubchem):
 
 static RequestClient client = RequestClient("https://pubchem.ncbi.nlm.nih.gov/rest/pug", 200);
-static Orchestrator viewOrchestrator = Orchestrator("https://pubchem.ncbi.nlm.nih.gov/rest/pug_view", 200);
+static RequestClient viewClient = RequestClient("https://pubchem.ncbi.nlm.nih.gov/rest/pug_view", 200);
 
 /// Fetches `Compound[]` with `cid` and `properties` populated by `/compound/%{TYPE}/%{ids}/property/`
 Compound[] internalGetProperties(string TYPE)(string str)
@@ -192,44 +191,39 @@ Protein[] internalGetProtein(string str)
 Protein internalGetProteinDetails(string accession)
 {
     Protein protein = Protein.getOrCreate(accession);
-    viewOrchestrator.rateLimit();
-    viewOrchestrator.client.get(
-        viewOrchestrator.buildURL("/data/protein/"~accession~"/JSON"),
-        (ubyte[] data) {
-            JSONValue json = parseJSON(data.assumeUTF);
-            if (json.isNull || "Record" !in json)
-                throw new Exception("Protein details are invalid "~json.toString());
+    JSONValue json = fetchJSON(viewClient, "/data/protein/"~accession~"/JSON");
+    if (json.isNull)
+        return protein;
 
-            JSONValue record = json["Record"];
+    if ("Record" !in json)
+        throw new Exception("Protein details are invalid "~json.toString());
 
-            if (protein._name.length == 0)
-                protein._name = stringField(record, "RecordTitle");
+    JSONValue record = json["Record"];
+    if (protein._name.length == 0)
+        protein._name = stringField(record, "RecordTitle");
 
-            if ("RecordExternalURL" in record)
-                protein.externalURL = record["RecordExternalURL"].str;
+    if ("RecordExternalURL" in record)
+        protein.externalURL = record["RecordExternalURL"].str;
 
-            string taxonomy = sectionString(record, "Taxonomy");
-            if (taxonomy.length > 0)
-                protein._taxonomy = taxonomy;
+    string taxonomy = sectionString(record, "Taxonomy");
+    if (taxonomy.length > 0)
+        protein._taxonomy = taxonomy;
 
-            string[] synonyms = sectionStrings(record, "Synonyms");
-            if (synonyms.length > 0)
-                protein._synonyms = synonyms;
+    string[] synonyms = sectionStrings(record, "Synonyms");
+    if (synonyms.length > 0)
+        protein._synonyms = synonyms;
 
-            protein._description = sectionString(record, "Record Description");
-            if (protein._description is null)
-                protein._description = "";
+    protein._description = sectionString(record, "Record Description");
+    if (protein._description is null)
+        protein._description = "";
 
-            protein._geneSymbol = sectionString(record, "Encoding Gene");
-            if (protein._geneSymbol is null)
-                protein._geneSymbol = "";
+    protein._geneSymbol = sectionString(record, "Encoding Gene");
+    if (protein._geneSymbol is null)
+        protein._geneSymbol = "";
 
-            protein._refSeqAccessions = sectionStrings(record, "RefSeq Accession");
-            protein._summaryLoaded = true;
-            protein._detailsLoaded = true;
-        },
-        null
-    );
+    protein._refSeqAccessions = sectionStrings(record, "RefSeq Accession");
+    protein._summaryLoaded = true;
+    protein._detailsLoaded = true;
     return protein;
 }
 
@@ -284,84 +278,83 @@ Gene[] internalGetGeneBySynonym(string synonym)
 Gene internalGetGeneDetails(int geneID)
 {
     Gene gene = Gene.getOrCreate(geneID);
-    viewOrchestrator.rateLimit();
-    viewOrchestrator.client.get(
-        viewOrchestrator.buildURL("/data/gene/"~geneID.to!string~"/JSON"),
-        (ubyte[] data) {
-            JSONValue json = parseJSON(data.assumeUTF);
-            if (json.isNull || "Record" !in json)
-                throw new Exception("Gene details are invalid "~json.toString());
+    JSONValue json = fetchJSON(viewClient, "/data/gene/"~geneID.to!string~"/JSON");
+    if (json.isNull)
+        return gene;
 
-            JSONValue record = json["Record"];
+    if ("Record" !in json)
+        throw new Exception("Gene details are invalid "~json.toString());
 
-            if ("RecordExternalURL" in record)
-                gene.externalURL = record["RecordExternalURL"].str;
+    JSONValue record = json["Record"];
+    if ("RecordExternalURL" in record)
+        gene.externalURL = record["RecordExternalURL"].str;
 
-            if (gene._name.length == 0)
-                gene._name = stringField(record, "RecordTitle");
+    if (gene._name.length == 0)
+        gene._name = stringField(record, "RecordTitle");
 
-            string symbol = sectionString(record, "Symbol");
-            if (symbol.length > 0)
-                gene._symbol = symbol;
+    string symbol = sectionString(record, "Symbol");
+    if (symbol.length > 0)
+        gene._symbol = symbol;
 
-            string taxonomy = sectionString(record, "Taxonomy");
-            if (taxonomy.length > 0)
-                gene._taxonomy = taxonomy;
+    string taxonomy = sectionString(record, "Taxonomy");
+    if (taxonomy.length > 0)
+        gene._taxonomy = taxonomy;
 
-            string[] synonyms = sectionStrings(record, "Synonyms");
-            if (synonyms.length > 0)
-                gene._synonyms = synonyms;
+    string[] synonyms = sectionStrings(record, "Synonyms");
+    if (synonyms.length > 0)
+        gene._synonyms = synonyms;
 
-            string description = sectionString(record, "Record Description");
-            if (description !is null)
-                gene._description = description;
-            else if (gene._description is null)
-                gene._description = "";
+    string description = sectionString(record, "Record Description");
+    if (description !is null)
+        gene._description = description;
+    else if (gene._description is null)
+        gene._description = "";
 
-            gene._identifiers = sectionChildStrings(record, "Other Identifiers");
-            gene._orthologs = sectionStrings(record, "Orthologous Genes");
-            gene._proteinFunctions = sectionStrings(record, "Protein Function");
+    gene._identifiers = sectionChildStrings(record, "Other Identifiers");
+    gene._orthologs = sectionStrings(record, "Orthologous Genes");
+    gene._proteinFunctions = sectionStrings(record, "Protein Function");
 
-            string[] proteinAccessions = sectionStrings(record, "Protein Targets");
-            if (proteinAccessions.length > 0)
-                gene._proteinAccessions = proteinAccessions;
-            else if (gene._proteinAccessions.length == 0)
-                gene._proteinAccessions = sectionNamedStrings(record, "Protein Isoforms", "RefSeq Accession");
+    string[] proteinAccessions = sectionStrings(record, "Protein Targets");
+    if (proteinAccessions.length > 0)
+        gene._proteinAccessions = proteinAccessions;
+    else if (gene._proteinAccessions.length == 0)
+        gene._proteinAccessions = sectionNamedStrings(record, "Protein Isoforms", "RefSeq Accession");
 
-            gene._proteinIsoforms.length = 0;
-            string[] isoformNames = sectionNamedStrings(record, "Protein Isoforms", "Isoform");
-            string[] isoformUniprotIDs = sectionNamedStrings(record, "Protein Isoforms", "UniProt ID");
-            string[] isoformRefSeqAccessions = sectionNamedStrings(record, "Protein Isoforms", "RefSeq Accession");
-            size_t isoformCount = isoformNames.length;
-            if (isoformUniprotIDs.length > isoformCount)
-                isoformCount = isoformUniprotIDs.length;
-            if (isoformRefSeqAccessions.length > isoformCount)
-                isoformCount = isoformRefSeqAccessions.length;
+    gene._proteinIsoforms.length = 0;
+    string[] isoformNames = sectionNamedStrings(record, "Protein Isoforms", "Isoform");
+    string[] isoformUniprotIDs = sectionNamedStrings(record, "Protein Isoforms", "UniProt ID");
+    string[] isoformRefSeqAccessions = sectionNamedStrings(record, "Protein Isoforms", "RefSeq Accession");
+    size_t isoformCount = isoformNames.length;
+    if (isoformUniprotIDs.length > isoformCount)
+        isoformCount = isoformUniprotIDs.length;
 
-            foreach (i; 0 .. isoformCount)
-            {
-                GeneIsoform isoform;
-                if (i < isoformNames.length)
-                    isoform.name = isoformNames[i];
-                if (i < isoformUniprotIDs.length)
-                    isoform.uniprotID = isoformUniprotIDs[i];
-                if (i < isoformRefSeqAccessions.length)
-                    isoform.refSeqAccession = isoformRefSeqAccessions[i];
-                if (isoform.name.length > 0 || isoform.uniprotID.length > 0 || isoform.refSeqAccession.length > 0)
-                    gene._proteinIsoforms ~= isoform;
-            }
+    if (isoformRefSeqAccessions.length > isoformCount)
+        isoformCount = isoformRefSeqAccessions.length;
 
-            string[] diseases;
-            diseases ~= sectionStrings(record, "GHR Health Conditions");
-            diseases ~= sectionStrings(record, "OMIM Phenotypes");
-            diseases ~= sectionStrings(record, "MedGen Diseases");
-            gene._diseases = diseases;
-            gene._pathways = sectionStrings(record, "Pathways");
-            gene._summaryLoaded = true;
-            gene._detailsLoaded = true;
-        },
-        null
-    );
+    foreach (i; 0..isoformCount)
+    {
+        GeneIsoform isoform;
+        if (i < isoformNames.length)
+            isoform.name = isoformNames[i];
+
+        if (i < isoformUniprotIDs.length)
+            isoform.uniprotID = isoformUniprotIDs[i];
+
+        if (i < isoformRefSeqAccessions.length)
+            isoform.refSeqAccession = isoformRefSeqAccessions[i];
+
+        if (isoform.name.length > 0 || isoform.uniprotID.length > 0 || isoform.refSeqAccession.length > 0)
+            gene._proteinIsoforms ~= isoform;
+    }
+
+    string[] diseases;
+    diseases ~= sectionStrings(record, "GHR Health Conditions");
+    diseases ~= sectionStrings(record, "OMIM Phenotypes");
+    diseases ~= sectionStrings(record, "MedGen Diseases");
+    gene._diseases = diseases;
+    gene._pathways = sectionStrings(record, "Pathways");
+    gene._summaryLoaded = true;
+    gene._detailsLoaded = true;
     return gene;
 }
 
