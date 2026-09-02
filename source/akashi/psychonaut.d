@@ -1,5 +1,9 @@
 module akashi.psychonaut;
 
+import akashi.page;
+import akashi.pubchem;
+import akashi.request : RequestClient;
+
 import std.json : JSONValue, parseJSON, JSONType;
 import std.conv : to;
 import std.string : assumeUTF, strip, toLower, indexOf;
@@ -9,30 +13,20 @@ import std.algorithm : canFind, min, map, filter;
 import std.math : abs, isNaN;
 import std.functional : toDelegate;
 
-import conductor;
-import akashi.page;
-import akashi.pubchem;
-
 private:
 
-static Orchestrator orchestrator =
-    Orchestrator("https://psychonautwiki.org/w", 200);
+static RequestClient client =
+    RequestClient("https://psychonautwiki.org/w", 200);
 
 JSONValue query(string[string] params)
 {
-    JSONValue json;
     params["format"] = "json";
     params["formatversion"] = "2";
 
-    orchestrator.rateLimit();
-    orchestrator.client.get(
-        orchestrator.buildURL("/api.php", params),
-        (ubyte[] data) {
-            json = parseJSON(data.assumeUTF);
-        },
-        null
-    );
-    return json;
+    ubyte[] data = client.get("/api.php", params);
+    if (data is null)
+        return JSONValue.init;
+    return parseJSON(data.assumeUTF);
 }
 
 bool isExactPage(string title, string[] syns)
