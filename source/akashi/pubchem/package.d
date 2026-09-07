@@ -8,7 +8,8 @@ import akashi.pubchem.internal;
 import std.algorithm : map;
 import std.array : array;
 import std.conv : to;
-import std.string : join;
+import std.string : join, replace;
+import std.uri : encode;
 
 Compound[] getProperties(string TYPE)(int[] ids...)
     if (TYPE == "cid" || TYPE == "sid")
@@ -68,4 +69,9 @@ string[] getDescription(string name)
 Compound[] similaritySearch(int cid, int threshold = 90, int maxRecords = 10)
 {
     return internalSimilaritySearch!"cid"(cid.to!string, threshold, maxRecords);
+}
+
+Compound[] similaritySearch(string smiles, int threshold = 90, int maxRecords = 10)
+{
+    return internalSimilaritySearch!"smiles"(encode(smiles).replace("+", "%2B"), threshold, maxRecords);
 }
