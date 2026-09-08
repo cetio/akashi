@@ -144,8 +144,8 @@ writeln(getDOI(articles[0]));
 ```d
 import akashi.page : Page;
 
-Page page     = Page.fromRaw("title", "wikipedia", someWikitextString);
-auto sections = page.sections;
+Page page = Page.fromRaw("title", "wikipedia", someWikitextString);
+auto sections = page.document.sections;
 writeln(page.preamble);
 writeln(page.fulltext);
 ```
@@ -155,7 +155,7 @@ writeln(page.fulltext);
 - `akashi.pubchem`
   - Look up compounds, assays, proteins, synonyms, descriptions, 3D conformers, and similarity matches from PubChem.
 - `akashi.page`
-  - Work with a shared `Page` type that lazily fetches content and exposes `raw()`, `document()`, `sections()`, `preamble()`, and `fulltext()`.
+  - Work with a shared `Page` type that lazily fetches content and exposes `raw()`, `document()`, `preamble()`, and `fulltext()`.
 - `akashi.wikipedia`
   - Search Wikipedia, fetch page content, and resolve likely compound pages.
 - `akashi.psychonaut`

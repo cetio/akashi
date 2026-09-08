@@ -15,21 +15,12 @@ struct AkashiConfig
 
 __gshared AkashiConfig config;
 
-/// Lightweight section view derived from the AST, for backward compat.
-struct Section
-{
-    string heading;
-    string content;
-    int level;
-}
-
 class Page
 {
 package:
     string _raw;
     Document _doc;
     bool _parsed;
-    Section[] _sections;
     void delegate(Page) _fetchContent;
 
     this() { }
@@ -100,25 +91,13 @@ public:
         return _doc;
     }
 
-    /// Flat section list derived from the AST (backward compat).
-    Section[] sections()
-    {
-        if (_sections.length == 0)
-        {
-            Document doc = document();
-            if (doc.nodes.length > 0)
-                _sections = flattenSections(doc);
-        }
-        return _sections;
-    }
-
-    /// Full plain-text content.
+    /// Full plain-text content of all sections.
     string fulltext()
     {
-        Section[] secs = sections();
-        if (secs.length == 0)
+        Document doc = document();
+        if (doc.nodes.length == 0)
             return "";
-        return secs.map!(s => s.content).join("\n\n");
+        return doc.sections().map!(s => doc.extractText(s)).join("\n\n");
     }
 
     /// Plain text of everything before the first section heading.
@@ -153,31 +132,4 @@ Page[] resolvePage(Compound compound)
     }
 
     return ret;
-}
-
-/// Extract a flat Section[] from a Document AST.
-private Section[] flattenSections(ref Document doc)
-{
-    Section[] ret;
-    if (doc.nodes.length == 0)
-        return ret;
-
-    uint i = doc.nodes[0].childStart;
-    while (i < doc.nodes[0].childEnd)
-    {
-        if (doc.nodes[i].type == NodeType.Section)
-            collectSection(doc, doc.nodes[i], ret);
-        i = doc.nextSiblingIdx(i);
-    }
-    return ret;
-}
-
-private void collectSection(ref Document doc, ref const Node sec, ref Section[] ret)
-{
-    string content = doc.extractText(sec);
-    ret ~= Section(
-        sec.text,
-        content,
-        cast(int) sec.level
-    );
 }
