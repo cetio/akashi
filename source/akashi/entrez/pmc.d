@@ -1,6 +1,6 @@
 module akashi.entrez.pmc;
 
-import std.json : JSONValue;
+import std.json : JSONType, JSONValue;
 import std.algorithm : map;
 import std.array : array;
 import std.regex : matchAll, matchFirst, ctRegex, regex;
@@ -29,7 +29,10 @@ Page[] parseArticles(string xml)
     {
         string ax = m.hit;
 
-        string pmcId = quickTag(ax, `<article-id[^>]*pub-id-type="pmc"[^>]*>(\d+)</article-id>`);
+        string pmcId = quickTag(
+            ax,
+            `<article-id[^>]*pub-id-type="pmc(?:id|aid)?"[^>]*>(?:PMC)?(\d+)</article-id>`
+        );
         if (pmcId is null)
             continue;
 
@@ -56,7 +59,7 @@ Page[] getPages(string DB)(string term, int limit = 10, string apiKey = null)
 {
     JSONValue json = esearch!"pmc"(term, limit, 0, apiKey);
 
-    if ("esearchresult" !in json || "idlist" !in json["esearchresult"])
+    if (json.type != JSONType.object || "esearchresult" !in json || "idlist" !in json["esearchresult"])
         return [];
 
     string[] pmcIds = json["esearchresult"]["idlist"].array.map!(x => x.str).array;

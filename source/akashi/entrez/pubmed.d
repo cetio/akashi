@@ -1,6 +1,6 @@
 module akashi.entrez.pubmed;
 
-import std.json : JSONValue;
+import std.json : JSONType, JSONValue;
 import std.algorithm : map;
 import std.array : array;
 import std.regex : matchAll, matchFirst, ctRegex, regex;
@@ -56,7 +56,7 @@ Page[] getPages(string DB)(string term, int limit = 10, string apiKey = null)
 {
     JSONValue json = esearch!"pubmed"(term, limit, 0, apiKey);
 
-    if ("esearchresult" !in json || "idlist" !in json["esearchresult"])
+    if (json.type != JSONType.object || "esearchresult" !in json || "idlist" !in json["esearchresult"])
         return [];
 
     string[] pmids = json["esearchresult"]["idlist"].array.map!(x => x.str).array;

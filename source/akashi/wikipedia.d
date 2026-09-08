@@ -36,7 +36,7 @@ void _wiFetchContent(Page page)
         "action": "parse", "prop": "wikitext",
         "page": page.title
     ]);
-    if ("parse" !in json || "wikitext" !in json["parse"])
+    if (json.type != JSONType.object || "parse" !in json || "wikitext" !in json["parse"])
         return;
 
     JSONValue wikitext = json["parse"]["wikitext"];
@@ -59,7 +59,7 @@ Page[] getPages(string DB)(string term, int limit = 10)
         "srprop": "snippet|titlesnippet"
     ]);
 
-    if ("query" !in json || "search" !in json["query"])
+    if (json.type != JSONType.object || "query" !in json || "search" !in json["query"])
         return [];
 
     Page[] ret;
@@ -87,7 +87,7 @@ Page[] getPagesByTitle(string DB)(string[] titles...)
         "prop": ""
     ]);
 
-    if ("query" !in json || "pages" !in json["query"])
+    if (json.type != JSONType.object || "query" !in json || "pages" !in json["query"])
         return [];
 
     Page[] ret;

@@ -48,7 +48,7 @@ void _psFetchContent(Page page)
         "action": "parse", "prop": "wikitext",
         "page": page.title
     ]);
-    if ("parse" !in json || "wikitext" !in json["parse"])
+    if (json.type != JSONType.object || "parse" !in json || "wikitext" !in json["parse"])
         return;
 
     JSONValue wikitext = json["parse"]["wikitext"];
@@ -140,7 +140,7 @@ Page[] getPages(string DB)(string term, int limit = 10)
         "srprop": "snippet|titlesnippet"
     ]);
 
-    if ("query" !in json || "search" !in json["query"])
+    if (json.type != JSONType.object || "query" !in json || "search" !in json["query"])
         return [];
 
     Page[] ret;
@@ -169,7 +169,7 @@ Page[] getPagesByTitle(string DB)(string[] titles...)
         "prop": ""
     ]);
 
-    if ("query" !in json || "pages" !in json["query"])
+    if (json.type != JSONType.object || "query" !in json || "pages" !in json["query"])
         return [];
 
     Page[] ret;
@@ -197,7 +197,7 @@ Page[] getReports(Page page, int limit = 20)
         "srprop": "snippet|titlesnippet"
     ]);
 
-    if ("query" !in json || "search" !in json["query"])
+    if (json.type != JSONType.object || "query" !in json || "search" !in json["query"])
         return [];
 
     Page[] ret;
@@ -241,7 +241,7 @@ DosageResult getDosage(Compound compound)
         "action": "parse", "prop": "wikitext",
         "page": "Template:SubstanceBox/"~page.title
     ]);
-    if ("parse" !in json || "wikitext" !in json["parse"])
+    if (json.type != JSONType.object || "parse" !in json || "wikitext" !in json["parse"])
         return DosageResult([], null);
 
     JSONValue wikitext = json["parse"]["wikitext"];
@@ -288,7 +288,7 @@ Dosage[] parseDosageText(string raw)
 
     enum roaRe = ctRegex!(
         `\|\s*(\w+)ROA_(Bioavailability|Threshold|Light|Common|Strong|Heavy)`
-       ~`\s*=\s*([^\n|]+)`);
+       ~`\s*=\s*([^\n]+)`);
     foreach (m; matchAll(raw, roaRe))
     {
         string range = cleanValue(m[3], m[2]);
