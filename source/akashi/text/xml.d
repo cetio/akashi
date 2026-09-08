@@ -75,6 +75,7 @@ private struct XmlParser
         if (matchTag("article-title")) { parseSimpleElement("article-title", NodeType.Section, 1); return true; }
         if (matchTag("title"))         { parseSimpleElement("title", NodeType.Section, 2); return true; }
         if (matchTag("abstract"))      { parseSectionElement("abstract", "Abstract", 2); return true; }
+        if (matchTag("Abstract"))      { parseSectionElement("Abstract", "Abstract", 2); return true; }
         if (matchTag("body"))          { parseBodyElement(); return true; }
         if (matchTag("sec"))           { parseSec(); return true; }
         if (matchTag("p"))             { parseParagraphElement(); return true; }
