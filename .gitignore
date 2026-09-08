@@ -1,5 +1,5 @@
 .dub/
-bin/
+bin/*
 __dummy.html
 *.o
 *.obj
@@ -27,3 +27,4 @@ __dummy.html
 *.swp
 *~
 akashi-*
+!bin/.gitkeep
