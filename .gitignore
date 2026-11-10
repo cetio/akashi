@@ -1,4 +1,7 @@
 .dub/
+.env
+/site/
+/docs/api/
 bin/*
 __dummy.html
 *.o
