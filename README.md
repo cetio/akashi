@@ -1,6 +1,6 @@
 # Akashi
 
-[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE.txt)
+[![DUB](https://img.shields.io/badge/DUB-package-red)](https://code.dlang.org/packages/akashi) [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE.txt) [![CI](https://github.com/cetio/akashi/actions/workflows/ci.yml/badge.svg)](https://github.com/cetio/akashi/actions/workflows/ci.yml)
 
 Akashi is a D library for chemistry-aware retrieval, source resolution, and text parsing across public scientific and knowledge sources.
 It was designed to work with Intuit, a D AI library for easy, deterministic connectors to AI models, but it is fully functional on its own.
@@ -21,18 +21,6 @@ It was designed to work with Intuit, a D AI library for easy, deterministic conn
 
 ```sh
 dub add akashi
-```
-
-For local development, depend on a checkout by path in your `dub.json`:
-
-```json
-{
-  "dependencies": {
-    "akashi": {
-      "path": "../akashi"
-    }
-  }
-}
 ```
 
 ## Quick Start
@@ -142,24 +130,9 @@ writeln(page.preamble);
 writeln(page.fulltext);
 ```
 
-## Modules
-
-- `akashi.pubchem`
-  - Look up compounds, assays, proteins, synonyms, descriptions, 3D conformers, and similarity matches from PubChem.
-- `akashi.page`
-  - Work with a shared `Page` type that lazily fetches content and exposes `raw()`, `document()`, `preamble()`, and `fulltext()`.
-- `akashi.wikipedia`
-  - Search Wikipedia, fetch page content, and resolve likely compound pages.
-- `akashi.psychonaut`
-  - Search PsychonautWiki, resolve compound pages, extract dosage information, and find experience reports.
-- `akashi.entrez`
-  - Query NCBI Entrez, retrieve PubMed abstracts, retrieve PMC full text, and work with article metadata such as DOI values.
-- `akashi.text`
-  - Parse wikitext and XML into a compact AST for further analysis, rendering, or plain-text extraction.
-
 ## Development
 
-See [Contributing](CONTRIBUTING.md) for change guidelines and [Testing](TESTING.md) for build and test commands.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [TESTING.md](TESTING.md).
 
 ## License
 
