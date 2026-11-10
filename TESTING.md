@@ -9,13 +9,13 @@ Install DUB and a D compiler. The commands here use LDC (`ldc2`). Akashi has no 
 ## Library Build
 
 ```sh
-dub build --compiler=ldc2
+dub build --compiler=ldc2 --config=library
 ```
 
 ## Offline Tests
 
 ```sh
-dub test --compiler=ldc2
+dub test --compiler=ldc2 --config=library
 ```
 
 This runs the inline unittests (URL building in `source/akashi/request.d`) and makes no network requests. Use it for routine verification.

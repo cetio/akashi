@@ -37,9 +37,9 @@ jobs:
       - name: Build library
         env:
           DUB_HOME: ${{ runner.temp }}/dub
-        run: dub build --compiler=ldc2
+        run: dub build --compiler=ldc2 --config=library
 
       - name: Run offline tests
         env:
           DUB_HOME: ${{ runner.temp }}/dub
-        run: dub test --compiler=ldc2
+        run: dub test --compiler=ldc2 --config=library

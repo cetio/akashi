@@ -16,8 +16,8 @@ Read the relevant implementation and tests first. Match the style of neighboring
 Run the library build and offline tests before submitting a change.
 
 ```sh
-dub build --compiler=ldc2
-dub test --compiler=ldc2
+dub build --compiler=ldc2 --config=library
+dub test --compiler=ldc2 --config=library
 ```
 
 Add or update tests for behavior changes. Keep live service requests behind their existing version flags; see [Testing](TESTING.md) for the flags and what each suite hits.
