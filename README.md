@@ -17,21 +17,13 @@ It was designed to work with Intuit, a D AI library for easy, deterministic conn
 - PubMed
 - PubMed Central (PMC)
 
-## Install
+## Installation
 
-### DUB
-
-Add Akashi to your `dub.json`:
-
-```json
-{
-  "dependencies": {
-    "akashi": "*"
-  }
-}
+```sh
+dub add akashi
 ```
 
-For local development as a path dependency:
+For local development, depend on a checkout by path in your `dub.json`:
 
 ```json
 {
@@ -43,7 +35,7 @@ For local development as a path dependency:
 }
 ```
 
-## Usage
+## Quick Start
 
 ### Compounds
 
@@ -164,6 +156,10 @@ writeln(page.fulltext);
   - Query NCBI Entrez, retrieve PubMed abstracts, retrieve PMC full text, and work with article metadata such as DOI values.
 - `akashi.text`
   - Parse wikitext and XML into a compact AST for further analysis, rendering, or plain-text extraction.
+
+## Development
+
+See [Contributing](CONTRIBUTING.md) for change guidelines and [Testing](TESTING.md) for build and test commands.
 
 ## License
 
